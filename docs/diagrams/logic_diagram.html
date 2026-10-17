@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sơ Đồ Logic Mạng Metro Ethernet MPLS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0f1e;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #f6d365, #fda085);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    /* ─── Main wrapper ─── */
+    .diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* ─── MPLS Cloud ─── */
+    .mpls-section {
+      background: linear-gradient(135deg, rgba(246,211,101,0.12), rgba(253,160,133,0.08));
+      border: 2px solid #f6d365;
+      border-radius: 24px;
+      padding: 20px 40px;
+      width: 100%;
+      max-width: 1100px;
+      position: relative;
+    }
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .mpls-section .section-title { color: #f6d365; }
+
+    .mpls-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      align-items: center;
+      justify-items: center;
+    }
+
+    /* ─── Connector arrows ─── */
+    .connectors {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      max-width: 1100px;
+      padding: 0 60px;
+    }
+    .connector-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .v-line {
+      width: 2px;
+      height: 36px;
+      background: linear-gradient(to bottom, #f6d365, #38bdf8);
+    }
+    .arrow-down {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #38bdf8;
+    }
+
+    /* ─── Branches row ─── */
+    .branches {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 1fr;
+      gap: 16px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    /* ─── Branch boxes ─── */
+    .branch {
+      border-radius: 16px;
+      padding: 16px 12px;
+      border: 2px solid;
+    }
+    .branch-1 {
+      background: rgba(56,189,248,0.07);
+      border-color: #38bdf8;
+    }
+    .branch-2 {
+      background: rgba(251,113,133,0.07);
+      border-color: #fb7185;
+    }
+    .branch-3 {
+      background: rgba(52,211,153,0.07);
+      border-color: #34d399;
+    }
+
+    .branch-1 .section-title { color: #38bdf8; }
+    .branch-2 .section-title { color: #fb7185; }
+    .branch-3 .section-title { color: #34d399; }
+
+    /* ─── Node styles ─── */
+    .node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: default;
+      transition: transform 0.2s;
+    }
+    .node:hover { transform: scale(1.08); }
+
+    .node-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    .node-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-align: center;
+      color: #cbd5e1;
+    }
+    .node-sublabel {
+      font-size: 0.55rem;
+      color: #64748b;
+      text-align: center;
+    }
+
+    /* Icon colors */
+    .icon-router { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+    .icon-pe     { background: linear-gradient(135deg, #6d28d9, #8b5cf6); }
+    .icon-p      { background: linear-gradient(135deg, #b45309, #f59e0b); }
+    .icon-sw     { background: linear-gradient(135deg, #065f46, #10b981); }
+    .icon-sw-blue{ background: linear-gradient(135deg, #0c4a6e, #0ea5e9); }
+    .icon-sw-red { background: linear-gradient(135deg, #7f1d1d, #ef4444); }
+    .icon-sw-grn { background: linear-gradient(135deg, #064e3b, #34d399); }
+    .icon-pc     { background: linear-gradient(135deg, #1e293b, #475569); }
+    .icon-server { background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #0ea5e9; }
+
+    /* ─── Layer labels ─── */
+    .layer-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin: 6px 0 4px;
+    }
+    .layer-core   { background: rgba(251,113,133,0.2); color: #fb7185; border: 1px solid #fb7185; }
+    .layer-dist   { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid #fbbf24; }
+    .layer-access { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid #34d399; }
+    .layer-spine  { background: rgba(52,211,153,0.2); color: #34d399; border: 1px solid #34d399; }
+    .layer-leaf   { background: rgba(14,165,233,0.2); color: #0ea5e9; border: 1px solid #0ea5e9; }
+
+    /* ─── Row / col helpers ─── */
+    .row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+    /* Link lines */
+    .link-h {
+      width: 60px;
+      height: 2px;
+      background: rgba(148,163,184,0.4);
+      align-self: center;
+      position: relative;
+    }
+    .link-v {
+      width: 2px;
+      height: 18px;
+      background: rgba(148,163,184,0.35);
+      margin: 0 auto;
+    }
+    .link-v-sm {
+      width: 2px;
+      height: 10px;
+      background: rgba(148,163,184,0.35);
+      margin: 0 auto;
+    }
+
+    /* divider */
+    .divider {
+      width: 90%;
+      height: 1px;
+      background: rgba(148,163,184,0.15);
+      margin: 8px auto;
+      border: none;
+      border-top: 1px dashed rgba(148,163,184,0.3);
+    }
+
+    /* legend */
+    .legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+    .legend-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+
+    /* tooltip */
+    .node[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 0.65rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      white-space: nowrap;
+      z-index: 99;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* peer connections in mpls */
+    .mpls-mesh {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    .mesh-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 900px) {
+      .branches { grid-template-columns: 1fr; }
+      .mpls-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<h1>SƠ ĐỒ LOGIC — METRO ETHERNET MPLS</h1>
+<p class="subtitle">Mô phỏng mạng với 3 chi nhánh kết nối qua backbone MPLS · Mininet / FRRouting</p>
+
+<div class="diagram">
+
+  <!-- ════════════════ MPLS ZONE ════════════════ -->
+  <div class="mpls-section">
+    <div class="section-title">☁ VÙNG MPLS (ISP BACKBONE)</div>
+
+    <!-- PE routers row -->
+    <div class="row" style="margin-bottom:4px;">
+      <div class="node" data-tip="Provider Edge 1">
+        <div class="node-icon icon-pe">🔷</div>
+        <div class="node-label">PE1</div>
+        <div class="node-sublabel">Provider Edge</div>
+      </div>
+      <div style="width:120px; height:2px; background: rgba(246,211,101,0.3); align-self:center;"></div>
+      <div class="node" data-tip="Provider 1">
+        <div class="node-icon icon-p">🔶</div>
+        <div class="node-label">P1</div>
+        <div class="node-sublabel">Provider</div>
+      </div>
+      <div style="width:30px; height:2px; background: rgba(246,211,101,0.3); align-self:center;"></div>
+      <div class="node" data-tip="Provider 2">
+        <div class="node-icon icon-p">🔶</div>
+        <div class="node-label">P2</div>
+        <div class="node-sublabel">Provider</div>
+      </div>
+      <div style="width:120px; height:2px; background: rgba(246,211,101,0.3); align-self:center;"></div>
+      <div class="node" data-tip="Provider Edge 3">
+        <div class="node-icon icon-pe">🔷</div>
+        <div class="node-label">PE3</div>
+        <div class="node-sublabel">Provider Edge</div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom: 4px;">
+      <!-- spacer PE1 side -->
+      <div style="width:90px;"></div>
+      <!-- vertical lines from P1 and P2 down to P3/P4 -->
+      <div class="col" style="gap:0; margin-left:90px;">
+        <div class="link-v"></div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="col" style="gap:0; margin-right:90px;">
+        <div class="link-v"></div>
+      </div>
+      <div style="width:90px;"></div>
+    </div>
+
+    <div class="row">
+      <div style="width:90px;"></div>
+      <div class="node" data-tip="Provider 3">
+        <div class="node-icon icon-p">🔶</div>
+        <div class="node-label">P3</div>
+        <div class="node-sublabel">Provider</div>
+      </div>
+      <div style="flex:1; height:2px; background: rgba(246,211,101,0.3);"></div>
+      <div class="node" data-tip="Provider Edge 2">
+        <div class="node-icon icon-pe">🔷</div>
+        <div class="node-label">PE2</div>
+        <div class="node-sublabel">Provider Edge</div>
+      </div>
+      <div style="flex:1; height:2px; background: rgba(246,211,101,0.3);"></div>
+      <div class="node" data-tip="Provider 4">
+        <div class="node-icon icon-p">🔶</div>
+        <div class="node-label">P4</div>
+        <div class="node-sublabel">Provider</div>
+      </div>
+      <div style="width:90px;"></div>
+    </div>
+  </div>
+
+  <!-- Connector lines from PE to CEs -->
+  <div class="connectors">
+    <div class="connector-line">
+      <div class="v-line"></div>
+      <div class="arrow-down"></div>
+    </div>
+    <div class="connector-line">
+      <div class="v-line"></div>
+      <div class="arrow-down"></div>
+    </div>
+    <div class="connector-line">
+      <div class="v-line"></div>
+      <div class="arrow-down"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════ BRANCHES ════════════════ -->
+  <div class="branches">
+
+    <!-- ─── BRANCH 1: FLAT ─── -->
+    <div class="branch branch-1">
+      <div class="section-title">CHI NHÁNH 1<br><small style="font-size:0.65em;letter-spacing:1px">MẠNG PHẲNG</small></div>
+
+      <!-- CE1 -->
+      <div class="row"><div class="node">
+        <div class="node-icon icon-router">🌐</div>
+        <div class="node-label">CE1</div>
+        <div class="node-sublabel">Customer Edge</div>
+      </div></div>
+
+      <div class="link-v"></div>
+
+      <!-- Switches flat layer -->
+      <div class="row">
+        <div class="col">
+          <div class="node">
+            <div class="node-icon icon-sw-blue">⬛</div>
+            <div class="node-label">sw1</div>
+          </div>
+          <div class="link-v-sm"></div>
+          <div class="row">
+            <div class="col">
+              <div class="node">
+                <div class="node-icon icon-pc" style="width:34px;height:34px;font-size:14px;">🖥</div>
+                <div class="node-label">host1</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="node">
+                <div class="node-icon icon-pc" style="width:34px;height:34px;font-size:14px;">🖥</div>
+                <div class="node-label">host2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="link-h"></div>
+        <div class="col">
+          <div class="node">
+            <div class="node-icon icon-sw-blue">⬛</div>
+            <div class="node-label">sw2</div>
+          </div>
+          <div class="link-v-sm"></div>
+          <div class="row">
+            <div class="col">
+              <div class="node">
+                <div class="node-icon icon-pc" style="width:34px;height:34px;font-size:14px;">🖥</div>
+                <div class="node-label">host3</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="node">
+                <div class="node-icon icon-pc" style="width:34px;height:34px;font-size:14px;">🖥</div>
+                <div class="node-label">host4</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── BRANCH 2: 3-LAYER ─── -->
+    <div class="branch branch-2">
+      <div class="section-title">CHI NHÁNH 2<br><small style="font-size:0.65em;letter-spacing:1px">MẠNG 3 LỚP (CORE – DISTRIBUTION – ACCESS)</small></div>
+
+      <!-- CE2 -->
+      <div class="row"><div class="node">
+        <div class="node-icon icon-router">🌐</div>
+        <div class="node-label">CE2</div>
+        <div class="node-sublabel">Customer Edge</div>
+      </div></div>
+
+      <div class="link-v"></div>
+
+      <!-- CORE layer -->
+      <div class="row"><div class="layer-label layer-core">LỚP CORE</div></div>
+      <div class="row">
+        <div class="node">
+          <div class="node-icon icon-sw-red">⬛</div>
+          <div class="node-label">sw_core1</div>
+        </div>
+        <div class="link-h" style="width:40px;"></div>
+        <div class="node">
+          <div class="node-icon icon-sw-red">⬛</div>
+          <div class="node-label">sw_core2</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- DISTRIBUTION layer -->
+      <div class="row"><div class="layer-label layer-dist">LỚP DISTRIBUTION</div></div>
+      <div class="row">
+        <div class="node">
+          <div class="node-icon icon-sw-red" style="background: linear-gradient(135deg,#713f12,#d97706);">⬛</div>
+          <div class="node-label">sw_dist1</div>
+        </div>
+        <div class="link-h" style="width:40px;"></div>
+        <div class="node">
+          <div class="node-icon icon-sw-red" style="background: linear-gradient(135deg,#713f12,#d97706);">⬛</div>
+          <div class="node-label">sw_dist2</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ACCESS layer -->
+      <div class="row"><div class="layer-label layer-access">LỚP ACCESS</div></div>
+      <div class="row" style="gap:8px;">
+
+        <div class="col">
+          <div class="node">
+            <div class="node-icon icon-sw-blue" style="width:36px;height:36px;font-size:14px;">⬛</div>
+            <div class="node-label">sw_acc1</div>
+          </div>
+          <div class="link-v-sm"></div>
+          <div class="row" style="gap:4px;">
+            <div class="node">
+              <div class="node-icon icon-pc" style="width:30px;height:30px;font-size:12px;">🖥</div>
+              <div class="node-label" style="font-size:0.55rem;">admin1</div>
+            </div>
+            <div class="node">
+              <div class="node-icon icon-pc" style="width:30px;height:30px;font-size:12px;">🖥</div>
+              <div class="node-label" style="font-size:0.55rem;">admin2</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="node">
+            <div class="node-icon icon-sw-blue" style="width:36px;height:36px;font-size:14px;">⬛</div>
+            <div class="node-label">sw_acc2</div>
+          </div>
+          <div class="link-v-sm"></div>
+          <div class="row" style="gap:4px;">
+            <div class="node">
+              <div class="node-icon icon-pc" style="width:30px;height:30px;font-size:12px;">🖥</div>
+              <div class="node-label" style="font-size:0.55rem;">lab1</div>
+            </div>
+            <div class="node">
+              <div class="node-icon icon-pc" style="width:30px;height:30px;font-size:12px;">🖥</div>
+              <div class="node-label" style="font-size:0.55rem;">lab2</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="node">
+            <div class="node-icon icon-sw-blue" style="width:36px;height:36px;font-size:14px;">⬛</div>
+            <div class="node-label">sw_acc3</div>
+          </div>
+          <div class="link-v-sm"></div>
+          <div class="row" style="gap:4px;">
+            <div class="node">
+              <div class="node-icon icon-pc" style="width:30px;height:30px;font-size:12px;">🖥</div>
+              <div class="node-label" style="font-size:0.55rem;">guest1</div>
+            </div>
+            <div class="node">
+              <div class="node-icon icon-pc" style="width:30px;height:30px;font-size:12px;">🖥</div>
+              <div class="node-label" style="font-size:0.55rem;">guest2</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── BRANCH 3: LEAF-SPINE ─── -->
+    <div class="branch branch-3">
+      <div class="section-title">CHI NHÁNH 3<br><small style="font-size:0.65em;letter-spacing:1px">MẠNG 2 LỚP (LEAF-SPINE)</small></div>
+
+      <!-- CE3 -->
+      <div class="row"><div class="node">
+        <div class="node-icon icon-router">🌐</div>
+        <div class="node-label">CE3</div>
+        <div class="node-sublabel">Customer Edge</div>
+      </div></div>
+
+      <div class="link-v"></div>
+
+      <!-- Spine layer -->
+      <div class="row"><div class="layer-label layer-spine">SWITCH SPINE</div></div>
+      <div class="row">
+        <div class="node">
+          <div class="node-icon icon-sw-grn">⬛</div>
+          <div class="node-label">spine1</div>
+        </div>
+        <div class="link-h" style="width:30px;"></div>
+        <div class="node">
+          <div class="node-icon icon-sw-grn">⬛</div>
+          <div class="node-label">spine2</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Leaf layer -->
+      <div class="row"><div class="layer-label layer-leaf">SWITCH LEAF</div></div>
+      <div class="row" style="gap:6px; flex-wrap:nowrap;">
+        <div class="col">
+          <div class="node">
+            <div class="node-icon icon-sw-blue" style="width:36px;height:36px;font-size:13px;">⬛</div>
+            <div class="node-label">leaf1</div>
+          </div>
+          <div class="link-v-sm"></div>
+          <div class="row" style="gap:3px;">
+            <div class="node">
+              <div class="node-icon icon-server" style="width:30px;height:30px;font-size:12px;">🖧</div>
+              <div class="node-label" style="font-size:0.54rem;">web1</div>
+            </div>
+            <div class="node">
+              <div class="node-icon icon-server" style="width:30px;height:30px;font-size:12px;">🖧</div>
+              <div class="node-label" style="font-size:0.54rem;">web2</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="node">
+            <div class="node-icon icon-sw-blue" style="width:36px;height:36px;font-size:13px;">⬛</div>
+            <div class="node-label">leaf2</div>
+          </div>
+          <div class="link-v-sm"></div>
+          <div class="row" style="gap:3px;">
+            <div class="node">
+              <div class="node-icon icon-server" style="width:30px;height:30px;font-size:12px;">🖧</div>
+              <div class="node-label" style="font-size:0.54rem;">dns1</div>
+            </div>
+            <div class="node">
+              <div class="node-icon icon-server" style="width:30px;height:30px;font-size:12px;">🖧</div>
+              <div class="node-label" style="font-size:0.54rem;">dns2</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="node">
+            <div class="node-icon icon-sw-blue" style="width:36px;height:36px;font-size:13px;">⬛</div>
+            <div class="node-label">leaf3</div>
+          </div>
+          <div class="link-v-sm"></div>
+          <div class="row" style="gap:3px;">
+            <div class="node">
+              <div class="node-icon icon-server" style="width:30px;height:30px;font-size:12px;">🖧</div>
+              <div class="node-label" style="font-size:0.54rem;">db1</div>
+            </div>
+            <div class="node">
+              <div class="node-icon icon-server" style="width:30px;height:30px;font-size:12px;">🖧</div>
+              <div class="node-label" style="font-size:0.54rem;">db2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.branches -->
+
+  <!-- ─── LEGEND ─── -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6);"></div> PE Router (Provider Edge)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:linear-gradient(135deg,#b45309,#f59e0b);"></div> P Router (Provider Core)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);"></div> CE Router (Customer Edge)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:linear-gradient(135deg,#065f46,#10b981);"></div> Switch
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:linear-gradient(135deg,#1e293b,#475569);"></div> PC / Server / Host
+    </div>
+  </div>
+
+</div><!-- /.diagram -->
+
+<script>
+  // Animate nodes on load
+  document.querySelectorAll('.node').forEach((n, i) => {
+    n.style.opacity = '0';
+    n.style.transform = 'translateY(10px)';
+    setTimeout(() => {
+      n.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+      n.style.opacity = '1';
+      n.style.transform = 'translateY(0)';
+    }, 100 + i * 30);
+  });
+</script>
+</body>
+</html>
